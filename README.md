@@ -9,5 +9,6 @@ Web-deployable BAR archive explorer for Age of Mythology
 * Extract files
 * Convert BTX files to PNG
 * Navigate through directories
+* Download extracted files as a zip file
 
 See it in action at http://weesals.com/Releases/HTML/BARExplorer/
