@@ -2,7 +2,35 @@
 
 class BTXFile {
 
-    static readPixels(buffer: Uint8Array, type: ImageTypes = ImageTypes.Raw, context?: CanvasRenderingContext2D): HTMLCanvasElement {
+    static temporaryCanvas: HTMLCanvasElement;
+    static temporaryContext: CanvasRenderingContext2D;
+
+    static getImgData(width, height): ImageData {
+        if (!this.temporaryCanvas) {
+            this.temporaryCanvas = document.createElement("canvas");
+            this.temporaryContext = this.temporaryCanvas.getContext("2d");
+        }
+        this.temporaryCanvas.width = width;
+        this.temporaryCanvas.height = height;
+        return this.temporaryContext.getImageData(0, 0, width, height);
+    }
+
+    static readToCanvas(buffer: Uint8Array, type: ImageTypes, context: CanvasRenderingContext2D) {
+        function getImgData(width, height) {
+            context.canvas.width = width;
+            context.canvas.height = height;
+            return context.getImageData(0, 0, width, height);
+        }
+        var imgData = this.readPixels(buffer, type, getImgData);
+        context.putImageData(imgData, 0, 0);
+    }
+
+    static readPixels(buffer: Uint8Array, type: ImageTypes = ImageTypes.Raw, getImgData?: (width, height) => ImageData): ImageData {
+        if (getImgData == null) {
+            getImgData = this.getImgData;
+        }
+
+
         var stream = new ByteStream(buffer);
         var header = stream.readString(3);
         if (header != "btx") return null;
@@ -10,18 +38,13 @@ class BTXFile {
         var iwidth = stream.readUint16();
         var iheight = stream.readUint16();
 
-        if (context == null) {
-            var canvas = document.createElement("canvas");
-            canvas.width = iwidth;
-            canvas.height = iheight;
-            context = canvas.getContext("2d");
-        }
-        var width = context.canvas.width;
-        var height = context.canvas.height;
-
         var imgDataP = stream.ptr;
 
-        var imgData = context.createImageData(width, height);
+        var imgData = getImgData(iwidth, iheight);
+
+        var width = imgData.width;
+        var height = imgData.height;
+
         var acount = 0;
         for (var y = 0; y < height; ++y) {
             var iy = Math.round(y * iheight / height);
@@ -64,8 +87,21 @@ class BTXFile {
                 }
             }
         }
+        return imgData;
+    }
+
+    /*static toCanvas(imgData: ImageData, context: CanvasRenderingContext2D): CanvasRenderingContext2D {
+        if (context == null) {
+            var canvas = document.createElement("canvas");
+            canvas.width = imgData.width;
+            canvas.height = imgData.width;
+            context = canvas.getContext("2d");
+        }
+        var width = context.canvas.width;
+        var height = context.canvas.height;
+
         context.putImageData(imgData, 0, 0);
         return context.canvas;
-    }
+    }*/
 
 }

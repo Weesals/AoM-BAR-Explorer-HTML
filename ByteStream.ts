@@ -40,11 +40,10 @@
     public readInt32(): number { var val = this.view.getInt32(this.ptr, true); this.ptr += 4; return val; }
     public readUint32(): number { var val = this.view.getUint32(this.ptr, true); this.ptr += 4; return val; }
 
-    public writeInt32(val: number) {
-        this.requireBufferSize(this.ptr + 4);
-        this.view.setInt32(this.ptr, val);
-        this.ptr += 4;
-    }
+    public writeInt8(val: number) { this.requireBufferSize(this.ptr + 1); this.view.setInt8(this.ptr, val); this.ptr += 1; }
+    public writeInt16(val: number) { this.requireBufferSize(this.ptr + 2); this.view.setInt16(this.ptr, val, true); this.ptr += 2; }
+    public writeInt32(val: number) { this.requireBufferSize(this.ptr + 4); this.view.setInt32(this.ptr, val, true); this.ptr += 4; }
+
     public readFloat32(): number {
         var val = this.view.getFloat32(this.ptr, true);
         this.ptr += 4;
