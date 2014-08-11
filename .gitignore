@@ -1,0 +1,6 @@
+*.map
+*.suo
+bin/
+obj/
+packages/
+*.user
